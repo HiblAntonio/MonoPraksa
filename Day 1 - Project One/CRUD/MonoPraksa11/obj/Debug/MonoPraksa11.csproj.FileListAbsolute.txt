@@ -1,0 +1,14 @@
+C:\Users\anton\source\repos\MonoPraksa11\MonoPraksa11\obj\Debug\MonoPraksa11.csproj.AssemblyReference.cache
+C:\Users\anton\source\repos\MonoPraksa11\MonoPraksa11\obj\Debug\MonoPraksa11.csproj.CoreCompileInputs.cache
+C:\Users\anton\source\repos\MonoPraksa11\MonoPraksa11\bin\Debug\MonoPraksa11.exe.config
+C:\Users\anton\source\repos\MonoPraksa11\MonoPraksa11\bin\Debug\MonoPraksa11.exe
+C:\Users\anton\source\repos\MonoPraksa11\MonoPraksa11\bin\Debug\MonoPraksa11.pdb
+C:\Users\anton\source\repos\MonoPraksa11\MonoPraksa11\obj\Debug\MonoPraksa11.exe
+C:\Users\anton\source\repos\MonoPraksa11\MonoPraksa11\obj\Debug\MonoPraksa11.pdb
+C:\Users\anton\Documents\GitHub\MonoPraksa\Day 1 - Project One\CRUD\MonoPraksa11\bin\Debug\MonoPraksa11.exe.config
+C:\Users\anton\Documents\GitHub\MonoPraksa\Day 1 - Project One\CRUD\MonoPraksa11\bin\Debug\MonoPraksa11.exe
+C:\Users\anton\Documents\GitHub\MonoPraksa\Day 1 - Project One\CRUD\MonoPraksa11\bin\Debug\MonoPraksa11.pdb
+C:\Users\anton\Documents\GitHub\MonoPraksa\Day 1 - Project One\CRUD\MonoPraksa11\obj\Debug\MonoPraksa11.csproj.AssemblyReference.cache
+C:\Users\anton\Documents\GitHub\MonoPraksa\Day 1 - Project One\CRUD\MonoPraksa11\obj\Debug\MonoPraksa11.csproj.CoreCompileInputs.cache
+C:\Users\anton\Documents\GitHub\MonoPraksa\Day 1 - Project One\CRUD\MonoPraksa11\obj\Debug\MonoPraksa11.exe
+C:\Users\anton\Documents\GitHub\MonoPraksa\Day 1 - Project One\CRUD\MonoPraksa11\obj\Debug\MonoPraksa11.pdb
