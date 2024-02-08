@@ -19,6 +19,9 @@ namespace Bookstore.WebApi.Models
         {
             try
             {
+                // Do I need to show all of the books that are in this bookshop?
+                // I'll fix all of the errors by tommorow
+
                 bookstores = new List<BookstoreC>();
                 string commandText = "SELECT \"Bookstore\".\"Id\", \"Bookstore\".\"Name\", \"Bookstore\".\"Address\", \"Bookstore\".\"Owner\", \"Book\".\"Title\", \"Book\".\"YearOfIssue\" FROM \"Bookstore\"" +
                                      "LEFT JOIN \"BookstoreInventory\" ON \"Bookstore\".\"Id\" = \"BookstoreInventory\".\"BookstoreId\"" +
@@ -47,6 +50,7 @@ namespace Bookstore.WebApi.Models
         {
             try
             {
+                // Get Bookstore by Id and one more function to get all books from bookstoreId?
                 if (id == null) return Request.CreateResponse(HttpStatusCode.BadRequest);
                 string commandText = "SELECT \"Bookstore\".\"Id\", \"Bookstore\".\"Name\", \"Bookstore\".\"Address\", \"Bookstore\".\"Owner\", \"Book\".\"Title\", \"Book\".\"YearOfIssue\" FROM \"Bookstore\"" +
                                      "LEFT JOIN \"BookstoreInventory\" ON \"Bookstore\".\"Id\" = \"BookstoreInventory\".\"BookstoreId\"" +
