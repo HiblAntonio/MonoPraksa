@@ -6,42 +6,43 @@ using System.Net;
 using System.Net.Http;
 using System.Web;
 using System.Web.Http;
+using System.Web.UI.WebControls;
 
 namespace Bookstore.WebApi.Models
 {
     public class BookstoreController : ApiController
     {
         private NpgsqlConnection connection = new NpgsqlConnection("Host=localhost;Port=5432;Username=postgres;Password=5432;Database=Bookstore");
-        private static List<BookstoreC> bookstores;
+        private static List<Guid> bookstoresId;
+        List<BookstoreC> readBookstores;
+        List<Book> books;
 
         // GET: Bookstore
         public HttpResponseMessage Get()
         {
             try
             {
-                // Do I need to show all of the books that are in this bookshop?
-                // I'll fix all of the errors by tommorow
+                readBookstores = new List<BookstoreC>();
 
-                bookstores = new List<BookstoreC>();
-                string commandText = "SELECT \"Bookstore\".\"Id\", \"Bookstore\".\"Name\", \"Bookstore\".\"Address\", \"Bookstore\".\"Owner\", \"Book\".\"Title\", \"Book\".\"YearOfIssue\" FROM \"Bookstore\"" +
-                                     "LEFT JOIN \"BookstoreInventory\" ON \"Bookstore\".\"Id\" = \"BookstoreInventory\".\"BookstoreId\"" +
-                                     "LEFT JOIN \"Book\" ON \"Book\".\"Id\" = \"BookstoreInventory\".\"BookId\"";
-                
-                using (NpgsqlCommand cmd = new NpgsqlCommand(commandText, connection))
+                using (NpgsqlConnection connectionSt = connection)
                 {
-                    connection.Open();
-                    NpgsqlDataReader reader = cmd.ExecuteReader();
+                    string bookstoresQuery = "SELECT \"Bookstore\".\"Id\", \"Bookstore\".\"Name\", \"Bookstore\".\"Address\", \"Bookstore\".\"Owner\", \"Book\".\"Title\" FROM \"Bookstore\" LEFT JOIN \"BookstoreInventory\" ON \"Bookstore\".\"Id\" = \"BookstoreInventory\".\"BookstoreId\" LEFT JOIN \"Book\" ON \"Book\".\"Id\" = \"BookstoreInventory\".\"BookId\"";
+
+                    NpgsqlCommand bookstoreCommand = new NpgsqlCommand(bookstoresQuery, connectionSt);
+
+                    connectionSt.Open();
+                    NpgsqlDataReader reader = bookstoreCommand.ExecuteReader();
 
                     if (reader.HasRows)
                     {
                         while (reader.Read())
                         {
-                            bookstores.Add(ReadBookstore(reader));
+                            ReadBookstore(reader);
                         }
                     }
                 }
 
-                return Request.CreateResponse(HttpStatusCode.OK, bookstores.Select(x => new BookstoreView(x)));
+                return Request.CreateResponse(HttpStatusCode.OK, readBookstores.Select(x => new BookstoreView(x)));
             }
             catch { return Request.CreateResponse(HttpStatusCode.InternalServerError); }
         }
@@ -50,24 +51,27 @@ namespace Bookstore.WebApi.Models
         {
             try
             {
-                // Get Bookstore by Id and one more function to get all books from bookstoreId?
-                if (id == null) return Request.CreateResponse(HttpStatusCode.BadRequest);
-                string commandText = "SELECT \"Bookstore\".\"Id\", \"Bookstore\".\"Name\", \"Bookstore\".\"Address\", \"Bookstore\".\"Owner\", \"Book\".\"Title\", \"Book\".\"YearOfIssue\" FROM \"Bookstore\"" +
-                                     "LEFT JOIN \"BookstoreInventory\" ON \"Bookstore\".\"Id\" = \"BookstoreInventory\".\"BookstoreId\"" +
-                                     "LEFT JOIN \"Book\" ON \"Book\".\"Id\" = \"BookstoreInventory\".\"BookId\" WHERE \"Id\" = @Id";
-
                 BookstoreC bookstore = null;
 
-                using (NpgsqlCommand cmd = new NpgsqlCommand(commandText, connection))
+                using (NpgsqlConnection connectionSt = connection)
                 {
-                    cmd.Parameters.AddWithValue("@Id", id);
+                    string bookstoreQuery = "SELECT * FROM \"Bookstore\" WHERE \"Id\" = @Id";
+                    NpgsqlCommand command = new NpgsqlCommand(bookstoreQuery, connectionSt);
+                    command.Parameters.AddWithValue("id", id);
 
-                    connection.Open();
-                    NpgsqlDataReader reader = cmd.ExecuteReader();
+                    connectionSt.Open();
+
+                    NpgsqlDataReader reader = command.ExecuteReader();
 
                     if (reader.HasRows && reader.Read())
                     {
-                        bookstore = ReadBookstore(reader);
+                        bookstore = new BookstoreC
+                        {
+                            Id = id,
+                            Name = (string)reader["Name"],
+                            Address = (string)reader["Address"],
+                            Owner = (string)reader["Owner"]
+                        };
                     }
                 }
 
@@ -76,16 +80,26 @@ namespace Bookstore.WebApi.Models
             catch { return Request.CreateResponse(HttpStatusCode.InternalServerError); }
         }
 
+        // WORKS
         public HttpResponseMessage Post(BookstoreC bookstore)
         {
+            // NpgSqlTransactions
             try
             {
-                int rowChangedBookstore, rowChangedBookstoreInventory;
+                Guid bookstoreId = Guid.NewGuid();
+                int rowsChangedBooks = 0;
+
+                if (bookstore == null) return Request.CreateResponse(HttpStatusCode.BadRequest);
+
+                int rowChangedBookstore, rowChangedBookstoreInventory = 0;
                 string queryBookstore = "INSERT INTO \"Bookstore\" VALUES (@Id, @Name, @Address, @Owner)";
-                
+                string queryBookInformation = "INSERT INTO \"Book\" VALUES " +
+                                                           "(@Id, @Title, @Author)";
+                string sql = "INSERT INTO \"BookstoreInventory\" VALUES (@Id, @BookId, @BookstoreId)";
+
                 using (NpgsqlCommand cmd = new NpgsqlCommand(queryBookstore, connection))
                 {
-                    cmd.Parameters.AddWithValue("@Id", Guid.NewGuid());
+                    cmd.Parameters.AddWithValue("@Id", bookstoreId);
                     cmd.Parameters.AddWithValue("@Name", bookstore.Name);
                     cmd.Parameters.AddWithValue("@Address", bookstore.Address);
                     cmd.Parameters.AddWithValue("@Owner", bookstore.Owner);
@@ -93,33 +107,37 @@ namespace Bookstore.WebApi.Models
                     connection.Open();
 
                     rowChangedBookstore = cmd.ExecuteNonQuery();
-                    connection.Close();
                 }
 
-                // Doesn't work
-                using (NpgsqlConnection connectionOne = connection)
+                List<Guid> booksIds = new List<Guid>();
+                int counter = 0;
+                foreach (var book in bookstore.Books)
                 {
-                    connection.Open();
-
-                    foreach (var book in bookstore.Books)
+                    using (NpgsqlCommand cmd = new NpgsqlCommand(queryBookInformation, connection))
                     {
-                        string queryBookstoreInformation = "INSERT INTO \"BookstoreInventory\" VALUES " +
-                                                           "(@Id, @BookstoreId, @BookId)";
+                        booksIds.Add(Guid.NewGuid());
 
-                        using (NpgsqlCommand cmd = new NpgsqlCommand(queryBookstoreInformation, connectionOne))
-                        {
-                            cmd.Parameters.AddWithValue("@Id", Guid.NewGuid());
-                            cmd.Parameters.AddWithValue("@BookstoreId", bookstore.Id);
-                            cmd.Parameters.AddWithValue("@BookId", Guid.NewGuid());
+                        cmd.Parameters.AddWithValue("@Id", booksIds[counter]);
+                        cmd.Parameters.AddWithValue("@Title", book.Title);
+                        cmd.Parameters.AddWithValue("@Author", book.Author);
 
-                            rowChangedBookstoreInventory = cmd.ExecuteNonQuery();
-                        }
+                        rowsChangedBooks += cmd.ExecuteNonQuery();
+
                     }
 
-                    connection.Close();
+                    using (NpgsqlCommand command = new NpgsqlCommand(sql, connection))
+                    {
+                        command.Parameters.AddWithValue("@Id", Guid.NewGuid());
+                        command.Parameters.AddWithValue("@BookstoreId", bookstoreId);
+                        command.Parameters.AddWithValue("@BookId", booksIds[counter]);
+
+                        rowChangedBookstoreInventory += command.ExecuteNonQuery();
+                    }
+
+                    counter++;
                 }
 
-                return RowChanged(rowChangedBookstore);
+                return RowChanged(rowChangedBookstore, rowsChangedBooks);
             }
             catch { return Request.CreateResponse(HttpStatusCode.InternalServerError); }
         }
@@ -200,51 +218,46 @@ namespace Bookstore.WebApi.Models
 
         private HttpResponseMessage RowChanged(int rowsChanged)
         {
-            if (rowsChanged == 0) return Request.CreateResponse(HttpStatusCode.InternalServerError);
+            if (rowsChanged == 0) return Request.CreateResponse(HttpStatusCode.NotFound);
             return Request.CreateResponse(HttpStatusCode.OK);
         }
 
         private HttpResponseMessage RowChanged(int rowsChangedQueryOne, int rowsChangedQueryTwo)
         {
-            if (rowsChangedQueryOne == 0 || rowsChangedQueryTwo == 0) return Request.CreateResponse(HttpStatusCode.InternalServerError);
+            if (rowsChangedQueryOne == 0 || rowsChangedQueryTwo == 0) return Request.CreateResponse(HttpStatusCode.NotFound);
             return Request.CreateResponse(HttpStatusCode.OK);
         }
 
-        private BookstoreC ReadBookstore(NpgsqlDataReader bookstoreRow)
+        // Provjeriti postoji li već taj bookstore, ako postoji onda samo appendati taj book na listu
+        // Gdje spremiti sve te prethodno učitane bookstorove?
+        private void ReadBookstore(NpgsqlDataReader bookstoreRow)
         {
-            try
-            {
-                bool bookstoreExists = false;
-                BookstoreC existingBookstore = null;
+            // Title is the only field that can be null
+            // Checking if the BookstoreId has been seen before
+            string title = bookstoreRow["Title"] as string;
 
-                foreach (var bookstore in bookstores)
+            BookstoreC targetBookstore = readBookstores.FirstOrDefault(x => x.Id == (Guid)bookstoreRow["Id"]);
+            if (targetBookstore == null)
+            {
+                readBookstores.Add(new BookstoreC
                 {
-                    if (bookstore.Id == (Guid)bookstoreRow["Id"])
+                    Id = (Guid)bookstoreRow["Id"],
+                    Name = (string)bookstoreRow["Name"],
+                    Address = (string)bookstoreRow["Address"],
+                    Owner = (string)bookstoreRow["Owner"],
+                    Books = new List<Book>
                     {
-                        bookstoreExists = true;
-                        existingBookstore = bookstore;
-                        break;
+                        new Book {Title = title ?? "No Books"}
                     }
-                }
-                if (!bookstoreExists)
-                {
-                    return new BookstoreC
-                    {
-                        //Title, YearOfIssue
-                        Id = (Guid)bookstoreRow["Id"],
-                        Name = (string)bookstoreRow["Name"],
-                        Address = (string)bookstoreRow["Address"],
-                        Owner = (string)bookstoreRow["Owner"],
-                        Books = GetBook(bookstoreRow)
-                    };
-                }
-                else
-                {
-                    existingBookstore.Books.AddRange(GetBook(bookstoreRow));
-                    return null;
-                }
+                });
             }
-            catch { return null; }
+            else
+            {
+                targetBookstore.Books.Add(new Book
+                {
+                    Title = title ?? "No Books"
+                }) ;
+            }
         }
 
         private List<Book> GetBook(dynamic bookstoreRow)

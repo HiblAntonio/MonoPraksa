@@ -17,7 +17,7 @@ namespace Bookstore.WebApi.Models
             Name = bookstore.Name;
             Address = bookstore.Address;
             Owner = bookstore.Owner;
-            //if(bookstore.Books != null) Books = bookstore.Books;
+            //Books = BookView(bookstore.Books);
         }
     }
 }

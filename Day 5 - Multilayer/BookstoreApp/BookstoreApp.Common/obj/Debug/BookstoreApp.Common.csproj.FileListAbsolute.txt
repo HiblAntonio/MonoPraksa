@@ -1,0 +1,6 @@
+C:\Users\anton\source\repos\BookstoreApp\BookstoreApp.Common\bin\Debug\BookstoreApp.Common.dll
+C:\Users\anton\source\repos\BookstoreApp\BookstoreApp.Common\bin\Debug\BookstoreApp.Common.pdb
+C:\Users\anton\source\repos\BookstoreApp\BookstoreApp.Common\obj\Debug\BookstoreApp.Common.csproj.AssemblyReference.cache
+C:\Users\anton\source\repos\BookstoreApp\BookstoreApp.Common\obj\Debug\BookstoreApp.Common.csproj.CoreCompileInputs.cache
+C:\Users\anton\source\repos\BookstoreApp\BookstoreApp.Common\obj\Debug\BookstoreApp.Common.dll
+C:\Users\anton\source\repos\BookstoreApp\BookstoreApp.Common\obj\Debug\BookstoreApp.Common.pdb
