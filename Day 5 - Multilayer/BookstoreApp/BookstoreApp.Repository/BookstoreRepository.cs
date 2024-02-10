@@ -96,9 +96,8 @@ namespace BookstoreApp.Repository
                     Guid bookGuid = Guid.NewGuid();
 
                     bookCommand.Parameters.AddWithValue("@Id", bookGuid);
-                    bookCommand.Parameters.AddWithValue("@Name", bookstore.Name);
-                    bookCommand.Parameters.AddWithValue("@Address", bookstore.Address);
-                    bookCommand.Parameters.AddWithValue("@Owner", bookstore.Owner);
+                    bookCommand.Parameters.AddWithValue("@Title", book.Title);
+                    bookCommand.Parameters.AddWithValue("@Author", book.Author);
 
                     bookstoreInventoryCommand.Parameters.AddWithValue("@Id", Guid.NewGuid());
                     bookstoreInventoryCommand.Parameters.AddWithValue("@BookstoreId", bookstoreGuid);
@@ -134,18 +133,18 @@ namespace BookstoreApp.Repository
                 List<string> updatedValues = new List<string>();
 
                 bookstoreCommand.Connection = connection;
-                bookstoreCommand.Parameters.AddWithValue("@id", bookstore.Id);
+
+                // Check if the value has beed changed
+                if (bookstore.Name != null)
+                {
+                    updatedValues.Add("\"Name\" = @Name");
+                    bookstoreCommand.Parameters.AddWithValue("@Name", bookstore.Name);
+                }
 
                 if (bookstore.Address != null)
                 {
                     updatedValues.Add("\"Address\" = @Address");
                     bookstoreCommand.Parameters.AddWithValue("@Address", bookstore.Address);
-                }
-
-                if (bookstore.Name != null)
-                {
-                    updatedValues.Add("\"Name\" = @Name");
-                    bookstoreCommand.Parameters.AddWithValue("@Name", bookstore.Name);
                 }
 
                 if (bookstore.Owner != null)
@@ -156,7 +155,9 @@ namespace BookstoreApp.Repository
 
                 if (updatedValues.Count == 0) return false;
 
-                bookstoreCommand.CommandText = "UPDATE \"Bookstore\" SET " + string.Join(", ", updatedValues) + "WHERE \"Id\" = @Id";
+                bookstoreCommand.CommandText = "UPDATE \"Bookstore\" SET " + string.Join(", ", updatedValues) + " WHERE \"Id\" = @Id";
+                bookstoreCommand.Parameters.AddWithValue("@Id", bookstore.Id);
+
                 connection.Open();
                 rowChanged = bookstoreCommand.ExecuteNonQuery();
             }
@@ -167,20 +168,25 @@ namespace BookstoreApp.Repository
         {
             bool successful = false;
 
-            string commandText = "DELETE FROM \"Bookstore\" WHERE Id = @Id";
+            string bookstoreQuery = "DELETE FROM \"Bookstore\" WHERE \"Id\" = @Id";
+            string bookstoreInventoryQuery = "DELETE FROM \"BookstoreInventory\" WHERE \"BookstoreId\" = @Id";
 
             using (NpgsqlConnection connection = new NpgsqlConnection(connectionString))
             {
-                NpgsqlCommand command = new NpgsqlCommand(commandText, connection);
-                command.Parameters.AddWithValue("@Id", id);
+                NpgsqlCommand bookstoreCommand = new NpgsqlCommand(bookstoreQuery, connection);
+                NpgsqlCommand bookstoreInventoryCommand = new NpgsqlCommand(bookstoreInventoryQuery, connection);
+                bookstoreCommand.Parameters.AddWithValue("@Id", id);
+                bookstoreInventoryCommand.Parameters.AddWithValue("@Id", id);
 
+                connection.Open();
                 NpgsqlTransaction transaction = connection.BeginTransaction();
 
-                command.Transaction = transaction;
+                bookstoreCommand.Transaction = bookstoreInventoryCommand.Transaction = transaction;
 
-                int rowChanged = command.ExecuteNonQuery();
+                int rowChangedBookstoreInventory = bookstoreInventoryCommand.ExecuteNonQuery();
+                int rowChangedBookstore = bookstoreCommand.ExecuteNonQuery();
 
-                if (rowChanged != 0)
+                if (rowChangedBookstore != 0 && rowChangedBookstoreInventory != 0)
                 {
                     transaction.Commit();
                     return true;

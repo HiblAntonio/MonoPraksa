@@ -12,7 +12,12 @@ namespace BookstoreApp.Controllers
 {
     public class BookstoreController : ApiController
     {
-        BookstoreService bookstoreService = new BookstoreService();
+        private readonly IBookstoreService bookstoreService;
+
+        public BookstoreController()
+        {
+            bookstoreService = new BookstoreService();
+        }
 
         [HttpGet]
         public HttpResponseMessage Get()
@@ -22,7 +27,7 @@ namespace BookstoreApp.Controllers
                 List<BookstoreView> bookstores = (List<BookstoreView>)bookstoreService.Get().Select(x => new BookstoreView(x)).ToList();
 
                 if(bookstores == null) return Request.CreateResponse(HttpStatusCode.NotFound);
-                return Request.CreateResponse(HttpStatusCode.OK);
+                return Request.CreateResponse(HttpStatusCode.OK, bookstores);
             }
             catch(Exception e) { return Request.CreateResponse(HttpStatusCode.InternalServerError, e.Message); };
         }
@@ -52,13 +57,14 @@ namespace BookstoreApp.Controllers
                 {
                     Id = Guid.NewGuid(),
                     Name = bookstore.Name,
+                    Address = bookstore.Address,
                     Owner = bookstore.Owner,
                     Books = bookstore.Books
                 };
 
                 bool inserted = bookstoreService.Add(bookstoreNew);
-                if (inserted) return Request.CreateResponse(HttpStatusCode.InternalServerError);
-                return Request.CreateResponse(HttpStatusCode.OK);
+                if (!inserted) return Request.CreateResponse(HttpStatusCode.OK);
+                return Request.CreateResponse(HttpStatusCode.BadRequest);
             }
             catch { return Request.CreateResponse(HttpStatusCode.InternalServerError); }
         }
