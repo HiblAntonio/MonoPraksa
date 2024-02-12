@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Threading.Tasks;
 using System.Web.Http;
 
 namespace BookstoreApp.Controllers
@@ -20,26 +21,27 @@ namespace BookstoreApp.Controllers
         }
 
         [HttpGet]
-        public HttpResponseMessage Get()
+        public async Task<HttpResponseMessage> Get()
         {
             try
             {
-                List<BookstoreView> bookstores = (List<BookstoreView>)bookstoreService.Get().Select(x => new BookstoreView(x)).ToList();
+                var bookstores = await bookstoreService.Get(); //.Select(x => new BookstoreView(x)).ToList();
+                var bookstoresView = bookstores.Select(x => new BookstoreView(x)).ToList();
 
-                if(bookstores == null) return Request.CreateResponse(HttpStatusCode.NotFound);
-                return Request.CreateResponse(HttpStatusCode.OK, bookstores);
+                if(bookstoresView == null) return Request.CreateResponse(HttpStatusCode.NotFound);
+                return Request.CreateResponse(HttpStatusCode.OK, bookstoresView);
             }
             catch(Exception e) { return Request.CreateResponse(HttpStatusCode.InternalServerError, e.Message); };
         }
 
         [HttpGet]
-        public HttpResponseMessage Get(Guid id)
+        public async Task<HttpResponseMessage> Get(Guid id)
         {
             try
             {
                 if(id == null) return Request.CreateResponse(HttpStatusCode.BadRequest);
 
-                Bookstore bookstore = bookstoreService.Get(id);
+                Bookstore bookstore = await bookstoreService.Get(id);
 
                 if(bookstore == null) return Request.CreateResponse(HttpStatusCode.NotFound);
                 return Request.CreateResponse(HttpStatusCode.OK, new BookstoreView(bookstore));
@@ -48,7 +50,8 @@ namespace BookstoreApp.Controllers
             catch { return Request.CreateResponse(HttpStatusCode.InternalServerError); };
         }
 
-        public HttpResponseMessage Post(Bookstore bookstore)
+        [HttpPost]
+        public async Task<HttpResponseMessage> Post(Bookstore bookstore)
         {
             try
             {
@@ -62,19 +65,20 @@ namespace BookstoreApp.Controllers
                     Books = bookstore.Books
                 };
 
-                bool inserted = bookstoreService.Add(bookstoreNew);
+                bool inserted = await bookstoreService.Add(bookstoreNew);
                 if (!inserted) return Request.CreateResponse(HttpStatusCode.OK);
                 return Request.CreateResponse(HttpStatusCode.BadRequest);
             }
             catch { return Request.CreateResponse(HttpStatusCode.InternalServerError); }
         }
 
-        public HttpResponseMessage Put(Guid id,[FromBody] Bookstore bookstore)
+        [HttpPut]
+        public async Task<HttpResponseMessage> Put(Guid id,[FromBody] Bookstore bookstore)
         {
             try
             {
                 if(bookstore == null) return Request.CreateResponse(HttpStatusCode.BadRequest);
-                bool updated = bookstoreService.Update(new Bookstore()
+                bool updated = await bookstoreService.Update(new Bookstore()
                 {
                     Id = id,
                     Name = bookstore.Name,
@@ -88,12 +92,13 @@ namespace BookstoreApp.Controllers
             catch { return Request.CreateResponse(HttpStatusCode.InternalServerError); }
         }
 
-        public HttpResponseMessage Delete(Guid id)
+        [HttpDelete]
+        public async Task<HttpResponseMessage> Delete(Guid id)
         {
             try
             {
                 if(id == null) return Request.CreateResponse(HttpStatusCode.BadRequest);
-                bool deleted = bookstoreService.Delete(id);
+                bool deleted = await bookstoreService.Delete(id);
 
                 if (deleted) return Request.CreateResponse(HttpStatusCode.OK);
                 return Request.CreateResponse(HttpStatusCode.BadRequest);

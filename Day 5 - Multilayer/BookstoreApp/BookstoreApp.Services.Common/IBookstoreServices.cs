@@ -9,10 +9,10 @@ namespace BookstoreApp.Service.Common
 {
     public interface IBookstoreService
     {
-        List<Bookstore> Get();
-        Bookstore Get(Guid id);
-        bool Add(Bookstore bookstore);
-        bool Update(Bookstore bookstore);
-        bool Delete(Guid id);
+        Task<List<Bookstore>> Get();
+        Task<Bookstore> Get(Guid id);
+        Task<bool> Add(Bookstore bookstore);
+        Task<bool> Update(Bookstore bookstore);
+        Task<bool> Delete(Guid id);
     }
 }

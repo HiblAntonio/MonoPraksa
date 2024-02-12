@@ -4,6 +4,7 @@ using BookstoreApp.Repository.Common;
 using BookstoreApp.Service.Common;
 using System.Collections.Generic;
 using System;
+using System.Threading.Tasks;
 
 namespace BookstoreApp.Service
 {
@@ -16,25 +17,25 @@ namespace BookstoreApp.Service
             bookstoreRepository = new BookstoreRepository();
         }
 
-        public List<Bookstore> Get()
+        public Task<List<Bookstore>> Get()
         {
             return bookstoreRepository.Get();
         }
 
-        public Bookstore Get(Guid id)
+        public Task<Bookstore> Get(Guid id)
         {
-            return (Bookstore)bookstoreRepository.Get(id);
+            return bookstoreRepository.Get(id);
         }
 
-        public bool Add(Bookstore bookstore)
+        public Task<bool> Add(Bookstore bookstore)
         {
             return bookstoreRepository.Add(bookstore);
         }
-        public bool Update(Bookstore bookstore)
+        public Task<bool> Update(Bookstore bookstore)
         {
             return bookstoreRepository.Update(bookstore);
         }
-        public bool Delete(Guid id)
+        public Task<bool> Delete(Guid id)
         {
             return bookstoreRepository.Delete(id);
         }

@@ -7,6 +7,7 @@ using System.Net;
 using System.Collections.Generic;
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace BookstoreApp.Repository
 {
@@ -16,7 +17,7 @@ namespace BookstoreApp.Repository
         List<Bookstore> readBookstores;
         // Get with optional parameters
 
-        public List<Bookstore> Get()
+        public async Task<List<Bookstore>> Get()
         {
             readBookstores = new List<Bookstore>();
 
@@ -27,7 +28,7 @@ namespace BookstoreApp.Repository
                 NpgsqlCommand bookstoreCommand = new NpgsqlCommand(bookstoresQuery, connection);
 
                 connection.Open();
-                NpgsqlDataReader reader = bookstoreCommand.ExecuteReader();
+                NpgsqlDataReader reader = await bookstoreCommand.ExecuteReaderAsync();
 
                 if (reader.HasRows)
                 {
@@ -41,7 +42,7 @@ namespace BookstoreApp.Repository
             return readBookstores;
         }
 
-        public Bookstore Get(Guid id)
+        public async Task<Bookstore> Get(Guid id)
         {
             Bookstore bookstore = null;
 
@@ -53,7 +54,7 @@ namespace BookstoreApp.Repository
 
                 connection.Open();
 
-                NpgsqlDataReader reader = command.ExecuteReader();
+                NpgsqlDataReader reader = await command.ExecuteReaderAsync();
 
                 if (reader.HasRows && reader.Read())
                 {
@@ -70,7 +71,7 @@ namespace BookstoreApp.Repository
             return bookstore;
         }
 
-        public bool Add(Bookstore bookstore)
+        public async Task<bool> Add(Bookstore bookstore)
         {
             Guid bookstoreGuid = Guid.NewGuid();
 
@@ -108,9 +109,9 @@ namespace BookstoreApp.Repository
                 NpgsqlTransaction transaction = connection.BeginTransaction();
                 bookstoreCommand.Transaction = bookCommand.Transaction = bookstoreInventoryCommand.Transaction = transaction;
 
-                int bookstoreTableValueChanged = bookstoreCommand.ExecuteNonQuery();
-                int bookTableValueChanged = bookCommand.ExecuteNonQuery();
-                int bookstoreInventoryValueChanged = bookstoreInventoryCommand.ExecuteNonQuery();
+                int bookstoreTableValueChanged = await bookstoreCommand.ExecuteNonQueryAsync();
+                int bookTableValueChanged = await bookCommand.ExecuteNonQueryAsync();
+                int bookstoreInventoryValueChanged = await bookstoreInventoryCommand.ExecuteNonQueryAsync();
 
                 if (bookstoreTableValueChanged != 0 && bookTableValueChanged != 0 && bookstoreInventoryValueChanged != 0)
                 {
@@ -122,8 +123,7 @@ namespace BookstoreApp.Repository
             return false;
         }
 
-        // NpgSqlTransaction
-        public bool Update(Bookstore bookstore)
+        public async Task<bool> Update(Bookstore bookstore)
         {
             int rowChanged;
 
@@ -159,12 +159,12 @@ namespace BookstoreApp.Repository
                 bookstoreCommand.Parameters.AddWithValue("@Id", bookstore.Id);
 
                 connection.Open();
-                rowChanged = bookstoreCommand.ExecuteNonQuery();
+                rowChanged = await bookstoreCommand.ExecuteNonQueryAsync();
             }
 
             return rowChanged != 0;
         }
-        public bool Delete(Guid id)
+        public async Task<bool> Delete(Guid id)
         {
             bool successful = false;
 
@@ -183,8 +183,8 @@ namespace BookstoreApp.Repository
 
                 bookstoreCommand.Transaction = bookstoreInventoryCommand.Transaction = transaction;
 
-                int rowChangedBookstoreInventory = bookstoreInventoryCommand.ExecuteNonQuery();
-                int rowChangedBookstore = bookstoreCommand.ExecuteNonQuery();
+                int rowChangedBookstoreInventory = await bookstoreInventoryCommand.ExecuteNonQueryAsync();
+                int rowChangedBookstore = await bookstoreCommand.ExecuteNonQueryAsync();
 
                 if (rowChangedBookstore != 0 && rowChangedBookstoreInventory != 0)
                 {
