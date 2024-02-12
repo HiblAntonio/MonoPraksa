@@ -66,14 +66,14 @@ namespace BookstoreApp.Controllers
                 };
 
                 bool inserted = await bookstoreService.Add(bookstoreNew);
-                if (!inserted) return Request.CreateResponse(HttpStatusCode.OK);
+                if (inserted) return Request.CreateResponse(HttpStatusCode.OK);
                 return Request.CreateResponse(HttpStatusCode.BadRequest);
             }
             catch { return Request.CreateResponse(HttpStatusCode.InternalServerError); }
         }
 
         [HttpPut]
-        public async Task<HttpResponseMessage> Put(Guid id,[FromBody] Bookstore bookstore)
+        public async Task<HttpResponseMessage> Put(Guid id, [FromBody] Bookstore bookstore)
         {
             try
             {

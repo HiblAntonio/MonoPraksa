@@ -77,6 +77,8 @@ namespace BookstoreApp.Repository
 
             using (NpgsqlConnection connection = new NpgsqlConnection(connectionString))
             {
+                int books = 0;
+
                 // Inserting data into "Bookstore" table
                 string bookstoreQuery = "INSERT INTO \"Bookstore\" VALUES (@Id, @Name, @Address, @Owner)";
                 NpgsqlCommand bookstoreCommand = new NpgsqlCommand(bookstoreQuery, connection);
@@ -103,6 +105,8 @@ namespace BookstoreApp.Repository
                     bookstoreInventoryCommand.Parameters.AddWithValue("@Id", Guid.NewGuid());
                     bookstoreInventoryCommand.Parameters.AddWithValue("@BookstoreId", bookstoreGuid);
                     bookstoreInventoryCommand.Parameters.AddWithValue("@BookId", bookGuid);
+
+                    books++;
                 }
 
                 connection.Open();
@@ -110,10 +114,15 @@ namespace BookstoreApp.Repository
                 bookstoreCommand.Transaction = bookCommand.Transaction = bookstoreInventoryCommand.Transaction = transaction;
 
                 int bookstoreTableValueChanged = await bookstoreCommand.ExecuteNonQueryAsync();
-                int bookTableValueChanged = await bookCommand.ExecuteNonQueryAsync();
-                int bookstoreInventoryValueChanged = await bookstoreInventoryCommand.ExecuteNonQueryAsync();
 
-                if (bookstoreTableValueChanged != 0 && bookTableValueChanged != 0 && bookstoreInventoryValueChanged != 0)
+                if(books > 0)
+                {
+                    await bookCommand.ExecuteNonQueryAsync();
+                    await bookstoreInventoryCommand.ExecuteNonQueryAsync();
+                }
+
+                // If books have not been inserted, then their value will not change so we don't have to check them
+                if (bookstoreTableValueChanged != 0)
                 {
                     transaction.Commit();
                     return true;
