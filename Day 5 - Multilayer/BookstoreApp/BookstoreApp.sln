@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.8.34525.116
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BookstoreApp.WebApi", "BookstoreApp\BookstoreApp.WebApi.csproj", "{A269426C-FA83-4F98-BDA5-BA9F4517C389}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BookstoreApp.WebApi", "BookstoreApp.WebApi\BookstoreApp.WebApi.csproj", "{A269426C-FA83-4F98-BDA5-BA9F4517C389}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BookstoreApp.Common", "BookstoreApp.Common\BookstoreApp.Common.csproj", "{EA91730A-DDA3-44EE-8C8E-64005347F0BC}"
 EndProject

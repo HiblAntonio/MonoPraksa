@@ -21,21 +21,6 @@ namespace BookstoreApp.Controllers
             this.bookstoreService = bookstoreService;
         }
 
-        //[HttpGet]
-        //[Route("")]
-        //public async Task<HttpResponseMessage> Get()
-        //{
-        //    try
-        //    {
-        //        var bookstores = await bookstoreService.GetAsync();
-        //        var bookstoresView = bookstores.Select(x => new BookstoreView(x)).ToList();
-
-        //        if(bookstoresView == null) return Request.CreateResponse(HttpStatusCode.NotFound);
-        //        return Request.CreateResponse(HttpStatusCode.OK, bookstoresView);
-        //    }
-        //    catch(Exception e) { return Request.CreateResponse(HttpStatusCode.InternalServerError, e.Message); };
-        //}
-
         [HttpGet]
         [Route("{id:guid}")]
         public async Task<HttpResponseMessage> Get(Guid id)

@@ -1,0 +1,6 @@
+C:\Users\anton\Documents\GitHub\MonoPraksa\Day 5 - Multilayer\BookstoreApp\BookstoreApp.DAL\bin\Debug\BookstoreApp.DAL.dll
+C:\Users\anton\Documents\GitHub\MonoPraksa\Day 5 - Multilayer\BookstoreApp\BookstoreApp.DAL\bin\Debug\BookstoreApp.DAL.pdb
+C:\Users\anton\Documents\GitHub\MonoPraksa\Day 5 - Multilayer\BookstoreApp\BookstoreApp.DAL\obj\Debug\BookstoreApp.DAL.csproj.AssemblyReference.cache
+C:\Users\anton\Documents\GitHub\MonoPraksa\Day 5 - Multilayer\BookstoreApp\BookstoreApp.DAL\obj\Debug\BookstoreApp.DAL.csproj.CoreCompileInputs.cache
+C:\Users\anton\Documents\GitHub\MonoPraksa\Day 5 - Multilayer\BookstoreApp\BookstoreApp.DAL\obj\Debug\BookstoreApp.DAL.dll
+C:\Users\anton\Documents\GitHub\MonoPraksa\Day 5 - Multilayer\BookstoreApp\BookstoreApp.DAL\obj\Debug\BookstoreApp.DAL.pdb
