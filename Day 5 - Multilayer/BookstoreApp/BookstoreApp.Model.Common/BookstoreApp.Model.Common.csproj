@@ -41,6 +41,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="IBookstoreViewModel.cs" />
     <Compile Include="IBook.cs" />
     <Compile Include="IBookstore.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

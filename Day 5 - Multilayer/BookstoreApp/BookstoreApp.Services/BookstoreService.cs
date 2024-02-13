@@ -10,34 +10,39 @@ namespace BookstoreApp.Service
 {
     public class BookstoreService : IBookstoreService
     {
-        public IBookstoreRepository bookstoreRepository;
+        private readonly IBookstoreRepository bookstoreRepository;
 
-        public BookstoreService()
+        public BookstoreService(IBookstoreRepository bookstoreRepository)
         {
-            bookstoreRepository = new BookstoreRepository();
-        }
-
-        public Task<List<Bookstore>> Get()
-        {
-            return bookstoreRepository.Get();
+            this.bookstoreRepository = bookstoreRepository;
         }
 
-        public Task<Bookstore> Get(Guid id)
+        public async Task<List<Bookstore>> GetAsync()
         {
-            return bookstoreRepository.Get(id);
+            return await bookstoreRepository.GetAsync();
         }
 
-        public Task<bool> Add(Bookstore bookstore)
+        public async Task<Bookstore> GetAsync(Guid id)
         {
-            return bookstoreRepository.Add(bookstore);
+            return await bookstoreRepository.GetAsync(id);
         }
-        public Task<bool> Update(Bookstore bookstore)
+
+        public async Task<List<Bookstore>> GetAsync(string searchQuery, string itemSorting, bool isAsc, int pageNum, int pageSize)
         {
-            return bookstoreRepository.Update(bookstore);
+            return await bookstoreRepository.GetAsync(searchQuery, itemSorting, isAsc, pageNum, pageSize);
         }
-        public Task<bool> Delete(Guid id)
+
+        public async Task<bool> AddAsync(Bookstore bookstore)
         {
-            return bookstoreRepository.Delete(id);
+            return await bookstoreRepository.AddAsync(bookstore);
+        }
+        public async Task<bool> UpdateAsync(Bookstore bookstore)
+        {
+            return await bookstoreRepository.UpdateAsync(bookstore);
+        }
+        public async Task<bool> DeleteAsync(Guid id)
+        {
+            return await bookstoreRepository.DeleteAsync(id);
         }
     }
 }

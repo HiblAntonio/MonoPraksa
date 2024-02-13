@@ -15,9 +15,8 @@ namespace BookstoreApp.Repository
     {
         public string connectionString = CommonProperty.connectionString;
         List<Bookstore> readBookstores;
-        // Get with optional parameters
 
-        public async Task<List<Bookstore>> Get()
+        public async Task<List<Bookstore>> GetAsync()
         {
             readBookstores = new List<Bookstore>();
 
@@ -42,7 +41,7 @@ namespace BookstoreApp.Repository
             return readBookstores;
         }
 
-        public async Task<Bookstore> Get(Guid id)
+        public async Task<Bookstore> GetAsync(Guid id)
         {
             Bookstore bookstore = null;
 
@@ -50,7 +49,7 @@ namespace BookstoreApp.Repository
             {
                 string bookstoreQuery = "SELECT * FROM \"Bookstore\" WHERE \"Id\" = @Id";
                 NpgsqlCommand command = new NpgsqlCommand(bookstoreQuery, connection);
-                command.Parameters.AddWithValue("id", id);
+                command.Parameters.AddWithValue("@Id", id);
 
                 connection.Open();
 
@@ -71,7 +70,62 @@ namespace BookstoreApp.Repository
             return bookstore;
         }
 
-        public async Task<bool> Add(Bookstore bookstore)
+        public async Task<List<Bookstore>> GetAsync(string searchQuery, string itemSorting, bool isAsc, int pageNum, int pageSize)
+        {
+            readBookstores = new List<Bookstore>();
+
+            using (NpgsqlConnection connection = new NpgsqlConnection(connectionString))
+            {
+                NpgsqlCommand bookstoreCommand = new NpgsqlCommand();
+                bookstoreCommand.Connection = connection;
+
+                List<string> filteredValues = new List<string>();
+                string orderByClause = " ORDER BY \"Name\" ASC";
+                string paginationClause = "";
+
+                if (!string.IsNullOrWhiteSpace(searchQuery))
+                {
+                    filteredValues.Add(" WHERE \"Name\" LIKE '%" + searchQuery + "%'");
+                    filteredValues.Add(" OR \"Address\" LIKE '%" + searchQuery + "%'");
+                    filteredValues.Add(" OR \"Owner\" LIKE '%" + searchQuery + "%'");
+                }
+
+                if (!string.IsNullOrWhiteSpace(itemSorting))
+                {
+                    orderByClause = isAsc ? " ORDER BY @itemSorting ASC" : " ORDER BY @itemSorting DESC";
+                    bookstoreCommand.Parameters.AddWithValue("@itemSorting", itemSorting);
+                }
+                
+                paginationClause = " OFFSET @offset ROWS FETCH NEXT @pageSize ROWS ONLY";
+
+                string bookstoreQuery = "SELECT * FROM \"Bookstore\"";
+
+                if (filteredValues.Any())
+                    bookstoreQuery += string.Join("", filteredValues);
+                
+                bookstoreQuery += orderByClause + paginationClause;
+
+                bookstoreCommand.CommandText = bookstoreQuery;
+                bookstoreCommand.Parameters.AddWithValue("@offset", pageSize * (pageNum - 1));
+                bookstoreCommand.Parameters.AddWithValue("@pageSize", pageSize);
+
+                connection.Open();
+                NpgsqlDataReader reader = await bookstoreCommand.ExecuteReaderAsync();
+
+                while (reader.Read() && reader.HasRows)
+                {
+                    readBookstores.Add(new Bookstore{ 
+                        Id = (Guid)reader["Id"],
+                        Name = (string)reader["Name"],
+                        Address = (string)reader["Address"],
+                        Owner = (string)reader["Owner"]
+                        });
+                }
+            }
+            return readBookstores;
+        }
+
+        public async Task<bool> AddAsync(Bookstore bookstore)
         {
             Guid bookstoreGuid = Guid.NewGuid();
 
@@ -132,7 +186,7 @@ namespace BookstoreApp.Repository
             return false;
         }
 
-        public async Task<bool> Update(Bookstore bookstore)
+        public async Task<bool> UpdateAsync(Bookstore bookstore)
         {
             int rowChanged;
 
@@ -173,9 +227,9 @@ namespace BookstoreApp.Repository
 
             return rowChanged != 0;
         }
-        public async Task<bool> Delete(Guid id)
+        public async Task<bool> DeleteAsync(Guid id)
         {
-            bool successful = false;
+            bool isSuccessful = false;
 
             string bookstoreQuery = "DELETE FROM \"Bookstore\" WHERE \"Id\" = @Id";
             string bookstoreInventoryQuery = "DELETE FROM \"BookstoreInventory\" WHERE \"BookstoreId\" = @Id";
@@ -202,13 +256,11 @@ namespace BookstoreApp.Repository
                 }
             }
 
-            return successful;
+            return isSuccessful;
         }
 
         private void ReadBookstore(NpgsqlDataReader bookstoreRow)
         {
-            // Title is the only field that can be null
-            // Checking if the BookstoreId has been seen before
             string title = bookstoreRow["Title"] as string;
 
             Bookstore targetBookstore = readBookstores.FirstOrDefault(x => x.Id == (Guid)bookstoreRow["Id"]);
