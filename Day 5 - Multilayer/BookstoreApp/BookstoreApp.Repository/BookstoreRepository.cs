@@ -132,7 +132,7 @@ namespace BookstoreApp.Repository
             using (NpgsqlConnection connection = new NpgsqlConnection(connectionString))
             {
                 int books = 0;
-
+         
                 // Inserting data into "Bookstore" table
                 string bookstoreQuery = "INSERT INTO \"Bookstore\" VALUES (@Id, @Name, @Address, @Owner)";
                 NpgsqlCommand bookstoreCommand = new NpgsqlCommand(bookstoreQuery, connection);
@@ -164,6 +164,7 @@ namespace BookstoreApp.Repository
                 }
 
                 connection.Open();
+
                 NpgsqlTransaction transaction = connection.BeginTransaction();
                 bookstoreCommand.Transaction = bookCommand.Transaction = bookstoreInventoryCommand.Transaction = transaction;
 
