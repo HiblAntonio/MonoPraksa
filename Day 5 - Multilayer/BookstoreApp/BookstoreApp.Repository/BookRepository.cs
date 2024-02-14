@@ -27,6 +27,7 @@ namespace BookstoreApp.Repository
 
     //public bool Update(Book book) { }
 
-    //public bool Delete(Guid id) { }
+    //public bool Delete(Guid id) {
+    //}
     //}
 }
