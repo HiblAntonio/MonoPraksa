@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="scripts.js">
+    </script>
+    <title>Edit User</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <form>
+            <h1>Edit User</h1>
+            <div>
+                <label for="id">ID:</label>
+                <input type="text" id="id" readonly disabled>
+            </div>
+            <div>
+                <label for="fname">First Name:</label>
+                <input type="text" id="fname">
+            </div>
+            <div>
+                <label for="lname">Last Name:</label>
+                <input type="text" id="lname">
+            </div>
+            <div>
+                <label for="email">Email:</label>
+                <input type="email" id="email">
+            </div>
+            <button type="button" onclick="saveUserChanges()">Save Changes</button>
+            <a href="view.html">
+                <button type="button">View all</button>
+            </a>
+        </form>
+    </div>
+    <script>
+        // move this code to the scripts.js file!!!!
+        window.onload = function() {
+            const params = new URLSearchParams(window.location.search);
+            const userId = params.get('id');
+
+            const users = JSON.parse(localStorage.getItem('users'));
+            const user = users.find(user => user.id === userId);
+
+            if (!user) {
+                console.error("User not found");
+                return;
+            }
+
+            document.getElementById("id").value = user.id;
+            document.getElementById("fname").value = user.firstName;
+            document.getElementById("lname").value = user.lastName;
+            document.getElementById("email").value = user.mailAddress;
+        };
+    </script>
+</body>
+</html>
