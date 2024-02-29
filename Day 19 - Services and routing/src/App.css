@@ -1,0 +1,183 @@
+.App {
+  text-align: center;
+}
+
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
+}
+
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+.container {
+  text-align: center;
+  padding: 20px;
+  border: 1px solid #ccc;
+  background-color: #fff;
+}
+.container h1 {
+  margin-bottom: 20px;
+}
+.container form {
+  margin-bottom: 20px;
+}
+.container label {
+  display: block;
+  margin-bottom: 10px;
+  text-align: left;
+}
+.container input {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 15px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+.container button {
+  padding: 10px 20px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.container button:hover {
+  background-color: #45a049;
+}
+
+table {
+  width: 100%; /* Expand the table */
+  margin: 0 auto; /* Center the table horizontally */
+}
+#createButton {
+  display: block;
+  margin: 20px auto;
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+th, td {
+  padding: 10px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+th {
+  background-color: #f2f2f2;
+}
+
+.buttons {
+  text-align: center;
+  padding: 10px;
+}
+
+button {
+  padding: 8px 16px;
+  margin: 0 5px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #45a049;
+}
+
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background-color: #343a40; /* Dark grey background color */
+  z-index: 1000; /* Ensure the navigation bar appears above other content */
+}
+
+/* Navigation links */
+.navbar-nav {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.nav-item {
+  width: 50%; /* Arrange links in two columns */
+}
+
+.nav-link {
+  color: #ffffff; /* White text color */
+  text-align: center;
+  padding: 0.5rem 1rem;
+  border-right: 1px solid #ffffff; /* Add border between links */
+}
+
+.nav-link:last-child {
+  border-right: none; /* Remove border from last link */
+}
+
+ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background-color: #333;
+}
+
+li {
+  float: left;
+}
+
+li a {
+  display: block;
+  color: white;
+  text-align: center;
+  padding: 14px 24px;
+  text-decoration: none;
+}
+
+/* Change the link color to #111 (black) on hover */
+li a:hover {
+  background-color: #111;
+}
